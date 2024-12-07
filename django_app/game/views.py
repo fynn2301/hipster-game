@@ -7,9 +7,11 @@ from game.utils.mapping import Mappings
 from game.utils.helpers import set_new_current_song, get_start_songs, fetch_song_years, get_playlist
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.cache import cache_page
 import pandas as pd
 import ast
 
+@cache_page(60 * 15)  # Cache for 15 minutes
 def connect_to_spotify(request):
     if request.method == "POST":
         action = request.POST.get("action")
@@ -45,6 +47,7 @@ def spotify_callback(request):
     # Weiterleitung zu einer anderen Seite (z. B. Auswahlseite)
     return redirect('select_settings')
 
+@cache_page(60 * 15)  # Cache for 15 minutes
 def select_settings(request):
     if request.method == "POST":
         action = request.POST.get('action')
@@ -76,6 +79,7 @@ def start_cards(request):
     song0, song1 = get_start_songs(request)
     return render(request, 'start_cards.html', {"song0": song0, "song1": song1})
 
+@cache_page(60 * 15)  # Cache for 15 minutes
 def music_player(request):
     # connection
     serialized_connection = request.session.get('spotify_connection')
