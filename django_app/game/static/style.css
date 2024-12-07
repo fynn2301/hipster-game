@@ -1,0 +1,94 @@
+
+
+/*PLAYER CONTROLLER*/
+.player-container {
+    text-align: center;
+    background: linear-gradient(to bottom, #a1d0dc, #cfe9ed);
+    padding: 20px;
+    border-radius: 80px;
+    width: 100%; /* Make it full width */
+    max-width: 100%; /* Restrict to the screen size */
+    height: 100%;
+    max-height: 100%; /* Restrict to the screen size */
+    box-sizing: border-box; /* Include padding in the width calculation */
+    margin: 0 auto; /* Center the container horizontally */
+}
+
+/*ALBUM IMAGE*/
+canvas {
+    border-radius: 80px;
+    width: 100%;
+    image-rendering: pixelated;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* PLAYER BUTTONS GROUP */
+.button-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; /* Increase spacing between buttons */
+}
+
+/* ACTION BUTTON CONTAINER */
+.action-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 15px; /* Increase padding for a larger clickable area */
+}
+
+/* BUTTON IMAGES */
+.action-button img {
+    width: 20vw; /* Increase size relative to viewport width */
+    max-width: 300px; /* Allow larger size for wider screens */
+    height: auto; /* Maintain aspect ratio */
+    transition: transform 0.2s; /* Smooth hover animations */
+}
+#play-pause-button img {
+    width: 25vw; /* Larger size */
+    max-width: 400px; /* Cap for large screens */
+}
+
+/*THE SOLVE BUTTON*/
+#solve-button {
+    background: linear-gradient(to right, #1DB954, #1ED760); /* Spotify-inspired gradient */
+    color: white; /* White text for contrast */
+    border: none; /* Remove default border */
+    border-radius: 80px; /* Rounded edges for a pill-shaped button */
+    padding: 20px 40px; /* Adjust padding for consistent size */
+    font-family: 'Arial', sans-serif; /* Clean, modern font */
+    font-weight: bold; /* Slightly bold for emphasis */
+    font-size: 8vw; /* Scale with viewport width */
+    cursor: pointer; /* Pointer cursor on hover */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    transition: transform 0.2s, box-shadow 0.2s; /* Smooth animations */
+}
+#solve-button:hover {
+    transform: scale(1.05); /* Slight zoom effect */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Deeper shadow on hover */
+}
+#solve-button:active {
+    transform: scale(0.95); /* Shrink slightly when clicked */
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1); /* Reduce shadow when clicked */
+}
+
+/* SONG DETAILS */
+#song-title {
+    font-size: 10vw; /* Responsive to viewport width */
+    font-family: 'Arial', sans-serif; /* Clean, modern font */
+    font-weight: bold; /* Slightly bold for emphasis */
+    margin: 10px 0; /* Add spacing above and below */
+    color: #333; /* Set a contrasting color */
+    text-align: center; /* Center the text */
+    word-wrap: break-word; /* Wrap text for long titles */
+}
+#song-details {
+    font-size: 8vw; /* Slightly smaller than the title */
+    font-family: 'Arial', sans-serif; /* Clean, modern font */
+    font-weight: bold; /* Slightly bold for emphasis */
+    color: #555; /* Use a lighter shade for secondary info */
+    margin: 5px 0; /* Add slight spacing */
+    text-align: center; /* Center-align details */
+    word-wrap: break-word; /* Wrap text for long details */
+}

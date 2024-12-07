@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Select Settings</title>
+    <style>
+        /* General body styles */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        /* Main container styles */
+        .container {
+            text-align: center;
+            background: linear-gradient(to bottom, #a1d0dc, #cfe9ed);
+            padding: min(20px, 4vw);
+            border-radius: 40px;
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+            margin: 0 auto;
+        }
+
+        /* Header styles */
+        h1 {
+            font-size: clamp(24px, 10vw, 48px);
+            font-weight: bold;
+            color: #333;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        h2 {
+            font-size: clamp(18px, 5vw, 32px);
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            margin-top: 40px;
+        }
+
+        /* Slider container styles */
+        .slider-container {
+            position: relative;
+            width: 90%;
+            max-width: 600px;
+            margin: 30px auto;
+            height: 6px;
+        }
+
+        .slider-track {
+            position: absolute;
+            width: 100%;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+        }
+
+        .slider-range {
+            position: absolute;
+            height: 6px;
+            background: #1DB954;
+            border-radius: 3px;
+        }
+
+        .slider {
+            position: absolute;
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            background: transparent;
+            outline: none;
+            pointer-events: none;
+            margin: 0;
+            padding: 0;
+            top: 0;
+            left: 0;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            border-radius: 50%;
+            pointer-events: auto;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .slider.right::-webkit-slider-thumb {
+            border-radius: 0 50% 50% 0;
+            background: linear-gradient(to right, #1DB954, #1ED760);
+        }
+
+        .slider.left::-webkit-slider-thumb {
+            border-radius: 50% 0 0 50%;
+            background: linear-gradient(to left, #1DB954, #1ED760);
+        }
+
+        .slider.single::-webkit-slider-thumb {
+            background: linear-gradient(to right, #1DB954, #1ED760);
+            border-radius: 50%;
+        }
+
+        .output-values {
+            position: absolute;
+            width: 100%;
+            top: -30px;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .value-label {
+            position: absolute;
+            font-weight: bold;
+            color: #333;
+            transform: translateX(-50%);
+        }
+
+        /* Genres Section */
+        .genre-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            font-family: inherit;
+            color: #333;
+        }
+
+        .genre-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 18px;
+        }
+
+        .genre-item input[type="checkbox"] {
+            accent-color: #1DB954;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        /* Button styles */
+        button[type="submit"] {
+            background: linear-gradient(to right, #1DB954, #1ED760);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: clamp(15px, 3vw, 25px) clamp(30px, 5vw, 50px);
+            font-weight: bold;
+            font-size: clamp(16px, 4vw, 24px);
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        button[type="submit"]:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button[type="submit"]:active {
+            transform: scale(0.95);
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        @media screen and (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: clamp(18px, 8vw, 32px);
+            }
+
+            .slider-container {
+                margin: 20px auto;
+                height: 4px;
+            }
+
+            .slider::-webkit-slider-thumb {
+                width: 20px;
+                height: 20px;
+            }
+
+            button[type="submit"] {
+                padding: clamp(12px, 4vw, 20px) clamp(20px, 6vw, 40px);
+                font-size: clamp(14px, 5vw, 18px);
+            }
+        }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div class="container">
+    <h1>Select Settings</h1>
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Year Range Sliders -->
+        <h2>Year Range</h2>
+        <div class="slider-container year-slider">
+            <div class="slider-track"></div>
+            <div class="slider-range"></div>
+            <div class="output-values">
+                <span class="value-label start-value">1960</span>
+                <span class="value-label end-value">2024</span>
+            </div>
+            <input
+                class="slider left"
+                type="range"
+                min="1960"
+                max="2024"
+                value="1960"
+                step="1"
+            />
+            <input
+                class="slider right"
+                type="range"
+                min="1960"
+                max="2024"
+                value="2024"
+                step="1"
+            />
+        </div>
+        <input type="hidden" name="start_decade" value="1960" />
+        <input type="hidden" name="end_decade" value="2024" />
+
+        <!-- Difficulty Slider -->
+        <h2>Difficulty</h2>
+        <div class="slider-container difficulty-slider">
+            <div class="slider-track"></div>
+            <!-- This output-values container for difficulty -->
+            <div class="output-values">
+                <span class="value-label difficulty-value">Easy</span>
+            </div>
+            <input 
+                type="range" 
+                class="slider single"
+                name="difficulty" 
+                min="1" 
+                max="10" 
+                value="1" 
+                step="0.1"
+            />
+        </div>
+
+        <!-- Genres -->
+        <h2>Select Genres</h2>
+        <div class="genre-container">
+            <label class="genre-item"><input type="checkbox" name="genres" value="Pop" checked> Pop</label>
+            <label class="genre-item"><input type="checkbox" name="genres" value="Rock" checked> Rock</label>
+            <label class="genre-item"><input type="checkbox" name="genres" value="Soul/Funk/R&B" checked> Soul/Funk/R&B</label>
+            <label class="genre-item"><input type="checkbox" name="genres" value="Hip-Hop/Rap" checked> Hip-Hop/Rap</label>
+            <label class="genre-item"><input type="checkbox" name="genres" value="Electronic" checked> Electronic</label>
+            <label class="genre-item"><input type="checkbox" name="genres" value="Schlager" checked> Schlager</label>
+            <label class="genre-item"><input type="checkbox" name="genres" value="Country/Folk" checked> Country/Folk</label>
+        </div>
+
+        <button type="submit" name="action" value="show_start_cards">Show Start Cards</button>
+    </form>
+</div>
+
+<script>
+// Year range sliders logic
+const leftSlider = document.querySelector('.year-slider .slider.left');
+const rightSlider = document.querySelector('.year-slider .slider.right');
+const sliderRange = document.querySelector('.year-slider .slider-range');
+const startValue = document.querySelector('.start-value');
+const endValue = document.querySelector('.end-value');
+const startYearInput = document.querySelector('input[name="start_decade"]');
+const endYearInput = document.querySelector('input[name="end_decade"]');
+const MIN_DISTANCE = 10;
+
+function updateYearSlider(slider, valueElement, otherValue, isLeft) {
+    requestAnimationFrame(() => {
+        const value = parseInt(slider.value);
+        const percent = ((value - slider.min) / (slider.max - slider.min)) * 100;
+        
+        valueElement.textContent = value;
+        valueElement.style.left = `${percent}%`;
+        
+        if (isLeft) {
+            sliderRange.style.left = `${percent}%`;
+            sliderRange.style.width = `${((otherValue - value) / (slider.max - slider.min)) * 100}%`;
+            startYearInput.value = value;
+        } else {
+            sliderRange.style.width = `${((value - otherValue) / (slider.max - slider.min)) * 100}%`;
+            endYearInput.value = value;
+        }
+        
+        if (parseInt(leftSlider.value) === parseInt(rightSlider.value)) {
+            leftSlider.style.zIndex = "2";
+            rightSlider.style.zIndex = "1";
+        } else {
+            leftSlider.style.zIndex = "1";
+            rightSlider.style.zIndex = "1";
+        }
+    });
+}
+
+leftSlider.addEventListener('input', (e) => {
+    const rightValue = parseInt(rightSlider.value);
+    const newValue = parseInt(e.target.value);
+    if (newValue > rightValue - MIN_DISTANCE) {
+        e.target.value = rightValue - MIN_DISTANCE;
+    }
+    updateYearSlider(leftSlider, startValue, rightValue, true);
+});
+
+rightSlider.addEventListener('input', (e) => {
+    const leftValue = parseInt(leftSlider.value);
+    const newValue = parseInt(e.target.value);
+    if (newValue < leftValue + MIN_DISTANCE) {
+        e.target.value = leftValue + MIN_DISTANCE;
+    }
+    updateYearSlider(rightSlider, endValue, leftValue, false);
+});
+
+// Initial setup for year range
+updateYearSlider(leftSlider, startValue, parseInt(rightSlider.value), true);
+updateYearSlider(rightSlider, endValue, parseInt(leftSlider.value), false);
+
+// Difficulty slider logic
+const difficultySlider = document.querySelector('.difficulty-slider .slider.single');
+const difficultyValueLabel = document.querySelector('.difficulty-value');
+
+difficultySlider.addEventListener('input', (e) => {
+    const val = parseFloat(e.target.value);
+    let label = "Easy";
+    if (val > 7) {
+        label = "Hard";
+    } else if (val > 4) {
+        label = "Medium";
+    } 
+    // Update label text
+    difficultyValueLabel.textContent = label;
+
+    // Position the label above the thumb
+    const min = parseFloat(difficultySlider.min);
+    const max = parseFloat(difficultySlider.max);
+    const percent = ((val - min) / (max - min)) * 100;
+    difficultyValueLabel.style.left = `${percent}%`;
+});
+
+// Initial setup for difficulty slider
+(function initDifficulty() {
+    const val = parseFloat(difficultySlider.value);
+    let label = "Easy";
+    if (val > 7) label = "Hard";
+    else if (val > 4) label = "Medium";
+    difficultyValueLabel.textContent = label;
+
+    const min = parseFloat(difficultySlider.min);
+    const max = parseFloat(difficultySlider.max);
+    const percent = ((val - min) / (max - min)) * 100;
+    difficultyValueLabel.style.left = `${percent}%`;
+})();
+</script>
+</body>
+</html>

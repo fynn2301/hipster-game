@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Music Player</title>
+    <style>
+        .player-container {
+            text-align: center;
+            background-color: #cfe9ed;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            margin: auto;
+        }
+        canvas {
+            border-radius: 10px;
+            width: 100%;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="player-container">
+        <canvas id="album-cover"></canvas>
+        {% csrf_token %}
+        <h2 id="song-title">{{ current_song.title }}</h2>
+        <p id="song-details">{{ current_song.artist }} - {{ current_song.year }}</p>
+        <div>
+            <button class="action-button" data-action="play_pause">{{ play_pause_label }}</button>
+            <button class="action-button" data-action="repeat">Repeat</button>
+            <button class="action-button" data-action="next_song">Next Song</button>
+        </div>
+        <div>
+            <button id="blur-button" class="action-button">Blur/Normal</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('album-cover');
+        const ctx = canvas.getContext('2d');
+        const imageSrc = "{{ current_song.image }}";
+        let blurred = true; // Start with the blurred mode
+
+        // Load the image
+        const img = new Image();
+        img.src = imageSrc;
+        img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            drawBlurred(); // Start with a blurred image
+        };
+
+        // Draw the blurred image
+        function drawBlurred() {
+            ctx.filter = 'blur(10px)'; // Apply a 10px Gaussian blur
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
+
+        // Draw the normal image
+        function drawNormal() {
+            ctx.filter = 'none'; // Remove any filters
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
+
+        // Toggle between blurred and normal modes
+        document.getElementById('blur-button').addEventListener('click', () => {
+            if (blurred) {
+                drawNormal();
+            } else {
+                drawBlurred();
+            }
+            blurred = !blurred;
+        });
+
+        // AJAX functionality for other buttons (unchanged)
+        $(document).ready(function () {
+        // Handle other buttons normally
+        $(".action-button").not("#solve-button").click(function (e) {
+            e.preventDefault();
+            let action = $(this).data("action");
+
+            $.ajax({
+                url: "{% url 'music_player' %}",  // Django view URL
+                type: "POST",
+                data: {
+                    action: action,
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                },
+                success: function (response) {
+                    // Update the UI based on the response
+                    $("#song-title").text(response.current_song.title);
+                    $("#song-details").text(response.current_song.artist + " - " + response.current_song.year);
+                    img.src = response.current_song.image; // Update image source
+                },
+                error: function (xhr) {
+                    alert("An error occurred: " + xhr.responseText);
+                },
+            });
+        });
+
+        // Handle "solve-button" for both pixelation toggle and AJAX
+        $("#solve-button").click(function (e) {
+            e.preventDefault();
+
+            // Toggle pixelation
+            if (pixelated) {
+                drawNormal();
+            } else {
+                drawPixelated();
+            }
+            pixelated = !pixelated;
+
+            // Send AJAX request
+            let action = $(this).data("action");
+            $.ajax({
+                url: "{% url 'music_player' %}",  // Django view URL
+                type: "POST",
+                data: {
+                    action: action,
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                },
+                success: function (response) {
+                    // Update UI if necessary (optional for this button)
+                    console.log("Solve button action sent to server successfully.");
+                },
+                error: function (xhr) {
+                    alert("An error occurred: " + xhr.responseText);
+                },
+            });
+        });
+    });
+
+    </script>
+</body>
+</html>

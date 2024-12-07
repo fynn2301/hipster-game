@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+/* Base container styles */
+.container {
+    text-align: center;
+    background: linear-gradient(to bottom, #a1d0dc, #cfe9ed);
+    padding: min(20px, 4vw);
+    border-radius: 40px;
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    box-sizing: border-box;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+}
+
+
+/* Album cover styles */
+canvas {
+    border-radius: 40px;
+    width: 100%;
+    max-width: 500px; /* Limit size on larger screens */
+    image-rendering: pixelated;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+    display: block;
+}
+
+/* Button group container */
+.button-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+
+/* Action button base styles */
+.action-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: clamp(10px, 2vw, 15px);
+}
+
+/* Button images */
+.action-button img {
+    width: clamp(30px, 8vw, 60px);
+    height: auto;
+    transition: transform 0.2s;
+}
+
+/* Play/Pause button - slightly larger */
+#play-pause-button img {
+    width: clamp(40px, 10vw, 80px);
+}
+
+/* Hover effects for buttons */
+.action-button:hover img {
+    transform: scale(1.1);
+}
+
+/* Solve button styles */
+#solve-button {
+    background: linear-gradient(to right, #1DB954, #1ED760);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: clamp(15px, 3vw, 25px) clamp(30px, 5vw, 50px);
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    font-size: clamp(16px, 4vw, 24px);
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin: 0;
+}
+
+#solve-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+#solve-button:active {
+    transform: scale(0.95);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Song title and details */
+#song-year {
+    font-size: clamp(24px, 5vw, 36px);
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+#song-title {
+    font-size: clamp(18px, 4vw, 28px);
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    color: #555;
+    margin: 0;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+#song-artist {
+    font-size: clamp(18px, 4vw, 28px);
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    color: #555;
+    margin: 0;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+@media screen and (max-width: 480px) {
+    /* Increase button size */
+
+    /* Adjust container padding for balance */
+    .container {
+        padding: 20px;
+    }
+    .action-button img {
+        width: clamp(60px, 16vw, 120px); /* Double the size */
+    }
+
+    #play-pause-button img {
+        width: clamp(80px, 20vw, 160px); /* Double the size */
+    }
+
+    #solve-button {
+        padding: clamp(15px, 3vw, 25px) clamp(15px, 10vw, 50px); /* Double the padding */
+        font-size: clamp(20px, 6vw, 30px); /* Double the text size */
+    }
+
+    /* Increase text size */
+    #song-year {
+        font-size: clamp(15px, 10vw, 50px); /* Double the size */
+    }
+
+    #song-title {
+        font-size: clamp(20px, 6vw, 56px); /* Double the size */
+    }
+    #song-artist {
+        font-size: clamp(16px, 5vw, 56px); /* Double the size */
+    }
+}
+
+/* Media Queries for very large screens */
+@media screen and (min-width: 1200px) {
+    .container {
+        padding: 60px;
+    }
+}
+
+</style>
+<head>
+    <title>Music Player</title>
+    {% load static %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="container">
+        <canvas id="album-cover"></canvas>
+        <h2 id="song-year">Secret</h2>
+        <p id="song-title">Secret - Secret</p>
+        <p id="song-artist">Secret - Secret</p>
+        <div>
+            <div class="button-group">
+                <button id="repeat-button" class="action-button" data-action="repeat">
+                    <img src="{% static 'icons/repeat.svg' %}" alt="Repeat">
+                </button>
+                <button id="play-pause-button" class="action-button" data-action="play_pause">
+                    <img id="play-pause-icon" src="{% static 'icons/pause.svg' %}" alt="Play">
+                </button>
+                <button id="next-song-button" class="action-button" data-action="next_song">
+                    <img src="{% static 'icons/next.svg' %}" alt="Next Song">
+                </button>
+            </div>
+            
+        </div>
+        <div>
+            <button id="solve-button" class="action-button">Auflösen</button>
+        </div>
+    </div>
+
+<script>
+    const musicPlayerUrl = "{% url 'music_player' %}";
+    const canvas = document.getElementById('album-cover');
+    const ctx = canvas.getContext('2d');
+
+    let currentSong = {
+    title: "{{ current_song.title }}",
+    artists: "{{ current_song.artists }}",
+    year: "{{ current_song.year }}",
+    image: "{{ current_song.image }}"
+    };
+    let solved = false; // Tracks whether the song details are revealed
+
+    const randomPhrases = [
+        "Den kennt man doch!",
+        "Na, wer ist das?",
+        "Der lief im Radio rauf und runter!",
+        "Ein echter Klassiker!",
+        "Das hast du doch schonmal gehört!",
+        "Klingt nach einem Ohrwurm!"
+    ];
+
+    // Variable, um den aktuell gewählten zufälligen Spruch zu speichern
+    let currentRandomPhrase = randomPhrases[Math.floor(Math.random() * randomPhrases.length)];
+
+    const pixelSize = 100; // Pixel block size for pixelation
+
+    // Helper function to update UI
+    function updateUI(songData) {
+        if (solved) {
+            // Normal image and revealed details
+            $("#song-year").text(songData.year);
+            $("#song-title").text(`${songData.title}`);
+            $("#song-artist").text(`${songData.artists}`);
+            $("#solve-button").prop("disabled", true);
+
+            const img = new Image();
+            img.src = songData.image;
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                drawNormal(img);
+            };
+        } else {
+            // Pixelated image and secret details:
+            $("#song-year").html("&nbsp;");
+            // Den bereits zuvor gesetzten zufälligen Spruch verwenden
+            $("#song-title").text(currentRandomPhrase);
+            // Leerer Artist, aber mit &nbsp; um Höhe beizubehalten
+            $("#song-artist").html("&nbsp;");
+            
+            $("#solve-button").prop("disabled", false);
+
+            const img = new Image();
+            img.src = songData.image;
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                drawPixelated(img);
+            };
+        }
+    }
+
+    // Draw pixelated image
+    function drawPixelated(img) {
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCanvas.width = Math.ceil(canvas.width / pixelSize);
+        tempCanvas.height = Math.ceil(canvas.height / pixelSize);
+        tempCtx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
+        ctx.imageSmoothingEnabled = false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, canvas.width, canvas.height);
+    }
+
+    // Draw normal image
+    function drawNormal(img) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    }
+
+    // Event handler for buttons
+    $(document).on("click", ".action-button", function (e) {
+        e.preventDefault();
+        const action = $(this).data("action");
+
+        // AJAX request to server
+        $.ajax({
+            url: musicPlayerUrl,
+            type: "POST",
+            data: {
+                action: action,
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            },
+            success: function (response) {
+                if (action === "next_song") {
+                    // Update current song with new data and reset state
+                    currentSong = response.current_song;
+                    solved = false; // Reset state for the new song
+                    // Hier nur beim nächsten Lied einen neuen zufälligen Spruch auswählen
+                    currentRandomPhrase = randomPhrases[Math.floor(Math.random() * randomPhrases.length)];
+                    updateUI(currentSong);
+                } else if (action === "repeat" || action === "play_pause") {
+                    // Die UI wird aktualisiert, aber der zufällige Spruch bleibt gleich
+                    updateUI(currentSong);
+                }
+            },
+            error: function (xhr) {
+                alert("An error occurred: " + xhr.responseText);
+            }
+        });
+    });
+
+    // Variable to track play state
+    let isPlaying = true;
+
+    // Event handler for play/pause button
+    $("#play-pause-button").click(function (e) {
+        e.preventDefault();
+        
+        isPlaying = !isPlaying; // Toggle play state
+        // Update play/pause icon
+        const iconPath = isPlaying
+            ? "{% static 'icons/pause.svg' %}" // Path to the pause icon
+            : "{% static 'icons/play.svg' %}"; // Path to the play icon
+        $("#play-pause-icon").attr("src", iconPath);
+
+    });
+
+    $("#repeat-button").click(function (e) {
+        e.preventDefault();
+        isPlaying = true; // Toggle play state
+
+        // Update play/pause icon
+        const iconPath = isPlaying
+            ? "{% static 'icons/pause.svg' %}" 
+            : "{% static 'icons/play.svg' %}";
+        $("#play-pause-icon").attr("src", iconPath);
+    });
+
+    $("#next-song-button").click(function (e) {
+        e.preventDefault();
+        isPlaying = true; // Toggle play state
+
+        // Update play/pause icon
+        const iconPath = isPlaying
+            ? "{% static 'icons/pause.svg' %}" 
+            : "{% static 'icons/play.svg' %}";
+        $("#play-pause-icon").attr("src", iconPath);
+    });
+
+    // Solve button functionality
+    $("#solve-button").click(() => {
+        solved = true; // Set state to solved
+        updateUI(currentSong); // Refresh UI to show normal image and details
+    });
+
+    // Initial load
+    updateUI(currentSong); // Start with pixelated image and the initially chosen random phrase
+
+</script>
+
+</body>
+</html>

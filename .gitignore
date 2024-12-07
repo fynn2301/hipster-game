@@ -1,0 +1,14 @@
+# Environment files
+.env
+
+# VS Code settings
+.vscode/
+
+# Virtual environment
+hitster-venv/
+
+# General ignores
+*.pyc
+__pycache__/
+.DS_Store
+*.log
