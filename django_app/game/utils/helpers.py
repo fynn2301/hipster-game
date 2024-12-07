@@ -3,6 +3,7 @@ import requests
 import time
 from typing import Any
 import pandas as pd
+import os
 def fetch_song_years(songs, fetch_full_response=False):
     base_url = "https://musicbrainz.org/ws/2/recording"
     headers = {"User-Agent": "YourAppName/1.0 (your-email@example.com)"}
@@ -80,9 +81,10 @@ def get_playlist(start_year: int, end_year: int, genres: list[str], difficulty: 
     6tNQ70jh4OwmPGpYy6R2o9,Benson Boone,Benson Boone,Beautiful Things,Beautiful Things,1.000000047683716,2024,2024,343,* 3 *,1,33,https://i.scdn.co/image/ab67616d0000b273bef221ea02a821e7feeda9cf,de,"['pop', 'pop rock', 'black metal', 'emo', 'american']",['Pop']
     ...
     """
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    file_path = os.path.join(BASE_DIR, "data", "processed_data", "song_data.csv")
 
-
-    all_songs = pd.read_csv("/Users/fynnersatz/Desktop/python/hitster/django/music_game/game/data/processed_data/song_data.csv", index_col=None)
+    all_songs = pd.read_csv(file_path, index_col=None)
     # match score needs to be over 0.95
     all_songs = all_songs[all_songs['match_score'] > 0.95]
     # Filter by year range
