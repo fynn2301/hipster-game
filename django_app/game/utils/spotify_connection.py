@@ -30,7 +30,7 @@ class SpotifyConnection:
         )
     
     def get_spotify_auth_url(self) -> str:
-        scope = "user-read-playback-state user-modify-playback-state streaming"
+        scope = "user-modify-playback-state user-read-playback-state streaming"
         return (
             f"https://accounts.spotify.com/authorize"
             f"?client_id={self.client_id}"
@@ -125,29 +125,25 @@ class SpotifyConnection:
         else:
             print(f"Fehler beim Fortsetzen der Wiedergabe: {response.status_code} - {response.text}")
 
-    def play_track(self, track_id: str) -> None:
-            """
-            Spielt einen Song im aktiven Spotify-Player ab.
+    def play_track(self, track_id: str, device_id: str = None) -> None:
+        if not self.access_token:
+            raise Exception("Access Token not set.")
 
-            :param track_id: Die ID des Songs, der abgespielt werden soll.
-            """
-            if not self.access_token:
-                raise Exception("Access Token ist nicht gesetzt. Bitte Token mit `get_spotify_token` abrufen.")
-            
-            url = "https://api.spotify.com/v1/me/player/play"
-            headers = {
-                "Authorization": f"Bearer {self.access_token}",
-                "Content-Type": "application/json"
-            }
-            data = {
-                "uris": [f"spotify:track:{track_id}"]
-            }
+        url = "https://api.spotify.com/v1/me/player/play"
+        if device_id:
+            url += f"?device_id={device_id}"
 
-            response = requests.put(url, headers=headers, json=data)
-            if response.status_code == 204:
-                print(f"Track {track_id} wird abgespielt.")
-            else:
-                print(f"Fehler beim Abspielen des Tracks: {response.status_code} - {response.text}")
+        headers = {
+            "Authorization": f"Bearer {self.access_token}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "uris": [f"spotify:track:{track_id}"]
+        }
+        response = requests.put(url, headers=headers, json=data)
+        if response.status_code != 204:
+            print(f"Error playing track: {response.status_code} - {response.text}")
+
 
     def stop(self) -> None:
         """

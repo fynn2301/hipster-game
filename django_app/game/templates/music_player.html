@@ -161,6 +161,7 @@ canvas {
 <head>
     <title>Music Player</title>
     {% load static %}
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -309,6 +310,11 @@ canvas {
     $("#play-pause-button").click(function (e) {
         e.preventDefault();
         
+        player.togglePlay().then(() => {
+            console.log("Playback started!");
+        }).catch(error => {
+            console.error("Failed to start playback:", error);
+        });
         isPlaying = !isPlaying; // Toggle play state
         // Update play/pause icon
         const iconPath = isPlaying
@@ -348,6 +354,41 @@ canvas {
 
     // Initial load
     updateUI(currentSong); // Start with pixelated image and the initially chosen random phrase
+    let player;
+    window.onSpotifyWebPlaybackSDKReady = () => {
+        const token = "{{ spotify_access_token }}"; // Make sure you pass this token from Django context
+
+        player = new Spotify.Player({
+            name: 'Web Playback SDK Player',
+            getOAuthToken: cb => { cb(token); },
+            volume: 0.5
+        });
+
+        player.addListener('ready', ({ device_id }) => {
+            console.log('Ready with Device ID', device_id);
+            // Send the device_id to the server
+            $.ajax({
+                url: "{% url 'store_device_id' %}",
+                type: "POST",
+                data: {
+                    device_id: device_id,
+                    csrfmiddlewaretoken: "{{ csrf_token }}"
+                },
+                success: function(response) {
+                    console.log("Device ID stored successfully.");
+                },
+                error: function(xhr) {
+                    console.error("Error storing device ID: ", xhr.responseText);
+                }
+            });
+        });
+
+        player.addListener('not_ready', ({ device_id }) => {
+            console.log('Device ID has gone offline', device_id);
+        });
+
+        player.connect();
+    };
 
 </script>
 

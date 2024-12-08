@@ -111,13 +111,16 @@ def music_player(request):
                 play_pause_label = "Pause"
 
         elif action == "repeat":
-            spotify_connection.play_track(current_song["id_spotify"])
+            device_id = request.session.get('spotify_device_id')  # May be None if not set yet
+            spotify_connection.play_track(current_song["id_spotify"], device_id=device_id)
+
             play_pause_label = "Pause"
 
         elif action == "next_song":
             set_new_current_song(request)
             current_song = request.session.get('current_song')
-            spotify_connection.play_track(current_song["id_spotify"])
+            device_id = request.session.get('spotify_device_id')  # May be None if not set yet
+            spotify_connection.play_track(current_song["id_spotify"], device_id=device_id)
             play_pause_label = "Pause"
         return JsonResponse({
             "current_song": {
@@ -126,6 +129,7 @@ def music_player(request):
                 "year": current_song["year_released"],
                 "image": current_song["image"],
             },
+            "spotify_access_token": spotify_connection.access_token,
         })
 
     return render(request, 'music_player.html', {
@@ -136,4 +140,11 @@ def music_player(request):
             "image": current_song["image"],
         },
         "play_pause_label": play_pause_label,
+        "spotify_access_token": spotify_connection.access_token,
     })
+
+
+def store_device_id(request):
+    device_id = request.POST.get('device_id')
+    request.session['spotify_device_id'] = device_id
+    return JsonResponse({"status": "ok"})
