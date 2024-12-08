@@ -2,6 +2,8 @@
 <html lang="en">
 <style>
 /* Base container styles */
+
+
 .container {
     text-align: center;
     background: linear-gradient(to bottom, #a1d0dc, #cfe9ed);
@@ -117,7 +119,7 @@ canvas {
     word-wrap: break-word;
 }
 .action-button-disabled {
-    opacity: 0.5;
+    opacity: 0.3;
     pointer-events: none; /* Prevent any interaction */
     cursor: not-allowed;
 }
@@ -181,8 +183,10 @@ canvas {
                     <img src="{% static 'icons/repeat.svg' %}" alt="Repeat">
                 </button>
                 <button id="play-pause-button" class="action-button action-button-disabled" data-action="play_pause" disabled>
-                    <img id="play-pause-icon" src="{% static 'icons/repeat.svg' %}" alt="Play">
+                    <img id="play-pause-icon" src="{% static 'icons/play.svg' %}" alt="Play">
                 </button>
+                </button>
+                
                 <button id="next-song-button" class="action-button action-button-disabled" data-action="next_song" disabled>
                     <img src="{% static 'icons/next.svg' %}" alt="Next Song">
                 </button>
@@ -360,7 +364,7 @@ canvas {
     updateUI(currentSong); // Start with pixelated image and the initially chosen random phrase
     let player;
     window.onSpotifyWebPlaybackSDKReady = () => {
-        const token = "{{ spotify_access_token }}"; // Make sure you pass this token from Django context
+        const token = "{{ spotify_access_token }}";
 
         player = new Spotify.Player({
             name: 'Web Playback SDK Player',
@@ -370,6 +374,7 @@ canvas {
 
         player.addListener('ready', ({ device_id }) => {
             console.log('Ready with Device ID', device_id);
+
             // Send the device_id to the server
             $.ajax({
                 url: "{% url 'store_device_id' %}",
@@ -377,6 +382,10 @@ canvas {
                 data: {
                     device_id: device_id,
                     csrfmiddlewaretoken: "{{ csrf_token }}"
+                },
+                beforeSend: function () {
+                    // Show loading spinner and disable play-pause button
+                    $("#play-pause-button").addClass("action-button-disabled").prop("disabled", true);
                 },
                 success: function(response) {
                     console.log("AJAX success callback triggered", response);
@@ -387,12 +396,16 @@ canvas {
                         $("#repeat-button").removeClass("action-button-disabled").prop("disabled", false);
                         $("#next-song-button").removeClass("action-button-disabled").prop("disabled", false);
 
-                        const iconPath = "{% static 'icons/play.svg' %}";
-                        $("#play-pause-icon").attr("src", iconPath);
+                        // Show play icon and hide spinner
+                        $("#play-pause-icon").attr("src", "{% static 'icons/play.svg' %}").show();
                     }
                 },
                 error: function(xhr) {
                     console.error("Error storing device ID: ", xhr.responseText);
+                    alert("Failed to connect to Spotify. Please try again.");
+
+                    // Revert UI changes on error
+                    $("#loading-spinner").hide();
                 }
             });
         });
@@ -402,7 +415,8 @@ canvas {
         });
 
         player.connect();
-    };
+    };  
+
 
 
 </script>
