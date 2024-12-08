@@ -116,31 +116,15 @@
                 <li><strong>Startkarten:</strong> Beide Teams erhalten eine Startkarte mit dem ersten Song und seiner Jahreszahl. Diese bildet die Grundlage des Zeitstrahls.</li>
                 <li><strong>Song abspielen:</strong> Der integrierte Player spielt Songs ab. Entscheidet, wo der Song auf eurem Zeitstrahl platziert werden soll, und lasst euch die Lösung anzeigen.</li>
                 <li><strong>Platzierung:</strong> Wenn korrekt, beschriftet einen physischen Spielstein mit der Jahreszahl und fügt diesen eurem Zeitstrahl hinzu.</li>
-                <li><strong>Jokerchips:</strong> Wenn ihr zusätzlich zur Jahreszahl auch Songtitel und Interpreten, richtig benennen könnt, bekommt ihr einen Jokerchip. Ihr könnt Jokerchips nutzen um einen Song gegen einen neuen Song einzutauschen.</li>
+                <li><strong>Jokerchips:</strong> Wenn ihr zusätzlich zur Jahreszahl auch Songtitel und Interpreten, richtig benennen könnt, bekommt ihr einen Jokerchip. Ihr könnt Jokerchips nutzen, um einen Song gegen einen neuen Song einzutauschen.</li>
                 <li><strong>Song klauen:</strong> Wenn ihr denkt, dass das andere Team den Song falsch eingeordnet hat, könnt ihr einen Jokerchip setzen. Wenn das andere Team wirklich falsch lag und ihr den Song bei euch richtig einordnen konntet, dürft ihr den Song behalten.</li>
             </ol>
             <p><strong>Spielende:</strong> Das Team, das zuerst alle 10 Spielsteine korrekt platziert hat, gewinnt.</p>
         </div>
-        <form method="post">
+        <form method="POST">
             {% csrf_token %}
             <button type="submit" name="action" value="connect">Connect to Spotify</button>
         </form>
-                <p>This site uses cookies to improve user experience. By using this site, you agree to our use of cookies.
-            <button onclick="acceptCookies()">I Accept</button>
-        </p>
     </div>
-
-    <script>
-        // Show the banner if the user hasn't accepted cookies
-        if (!document.cookie.includes("cookieConsent=true")) {
-            document.getElementById("cookieConsent").style.display = "block";
-        }
-
-        function acceptCookies() {
-            // Set a cookie to remember the user's consent
-            document.cookie = "cookieConsent=true; path=/; max-age=" + 60 * 60 * 24 * 30; // 30 days
-            document.getElementById("cookieConsent").style.display = "none";
-    }
-</script>
 </body>
 </html>
