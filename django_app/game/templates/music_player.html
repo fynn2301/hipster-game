@@ -116,7 +116,11 @@ canvas {
     text-align: center;
     word-wrap: break-word;
 }
-
+.action-button-disabled {
+    opacity: 0.5;
+    pointer-events: none; /* Prevent any interaction */
+    cursor: not-allowed;
+}
 @media screen and (max-width: 480px) {
     /* Increase button size */
 
@@ -173,13 +177,13 @@ canvas {
         <p id="song-artist">Secret - Secret</p>
         <div>
             <div class="button-group">
-                <button id="repeat-button" class="action-button" data-action="repeat">
+                <button id="repeat-button" class="action-button action-button-disabled" data-action="repeat" disabled>
                     <img src="{% static 'icons/repeat.svg' %}" alt="Repeat">
                 </button>
-                <button id="play-pause-button" class="action-button" data-action="play_pause">
-                    <img id="play-pause-icon" src="{% static 'icons/pause.svg' %}" alt="Play">
+                <button id="play-pause-button" class="action-button action-button-disabled" data-action="play_pause" disabled>
+                    <img id="play-pause-icon" src="{% static 'icons/repeat.svg' %}" alt="Play">
                 </button>
-                <button id="next-song-button" class="action-button" data-action="next_song">
+                <button id="next-song-button" class="action-button action-button-disabled" data-action="next_song" disabled>
                     <img src="{% static 'icons/next.svg' %}" alt="Next Song">
                 </button>
             </div>
@@ -304,7 +308,7 @@ canvas {
     });
 
     // Variable to track play state
-    let isPlaying = true;
+    let isPlaying = false;
 
     // Event handler for play/pause button
     $("#play-pause-button").click(function (e) {
@@ -375,7 +379,17 @@ canvas {
                     csrfmiddlewaretoken: "{{ csrf_token }}"
                 },
                 success: function(response) {
-                    console.log("Device ID stored successfully.");
+                    console.log("AJAX success callback triggered", response);
+                    if (response.status === "okay") {
+                        console.log("Device ID stored successfully.");
+                        // Enable play/pause button
+                        $("#play-pause-button").removeClass("action-button-disabled").prop("disabled", false);
+                        $("#repeat-button").removeClass("action-button-disabled").prop("disabled", false);
+                        $("#next-song-button").removeClass("action-button-disabled").prop("disabled", false);
+
+                        const iconPath = "{% static 'icons/play.svg' %}";
+                        $("#play-pause-icon").attr("src", iconPath);
+                    }
                 },
                 error: function(xhr) {
                     console.error("Error storing device ID: ", xhr.responseText);
@@ -389,6 +403,7 @@ canvas {
 
         player.connect();
     };
+
 
 </script>
 

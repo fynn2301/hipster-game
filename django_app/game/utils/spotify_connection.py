@@ -110,20 +110,24 @@ class SpotifyConnection:
 
         return songs
     
-    def resume(self) -> None:
+    def resume(self, device_id: str = None) -> None:
         """
-        Resumes the playback.
+        Resumes the playback on a specified device.
         """
         if not self.access_token:
-            raise Exception("Access Token ist nicht gesetzt. Bitte Token mit `get_spotify_token` abrufen.")
+            raise Exception("Access Token not set.")
         
         url = "https://api.spotify.com/v1/me/player/play"
+        if device_id:
+            url += f"?device_id={device_id}"
+
         headers = {"Authorization": f"Bearer {self.access_token}"}
         response = requests.put(url, headers=headers)
         if response.status_code == 204:
-            print("Wiedergabe wurde fortgesetzt.")
+            print("Playback resumed.")
         else:
-            print(f"Fehler beim Fortsetzen der Wiedergabe: {response.status_code} - {response.text}")
+            print(f"Error resuming playback: {response.status_code} - {response.text}")
+
 
     def play_track(self, track_id: str, device_id: str = None) -> None:
         if not self.access_token:
@@ -145,52 +149,35 @@ class SpotifyConnection:
             print(f"Error playing track: {response.status_code} - {response.text}")
 
 
-    def stop(self) -> None:
+    def stop(self, device_id: str = None) -> None:
         """
-        Pauses the current playback.
+        Pauses the current playback on a specified device.
         """
         if not self.access_token:
-            raise Exception("Access Token ist nicht gesetzt. Bitte Token mit `get_spotify_token` abrufen.")
+            raise Exception("Access Token not set.")
         
         url = "https://api.spotify.com/v1/me/player/pause"
+        if device_id:
+            url += f"?device_id={device_id}"
+
         headers = {"Authorization": f"Bearer {self.access_token}"}
         response = requests.put(url, headers=headers)
         if response.status_code == 204:
-            print("Wiedergabe wurde gestoppt.")
+            print("Playback paused.")
         else:
-            print(f"Wiedergabe wurde gestoppt: {response.status_code} - {response.text}")
+            print(f"Error pausing playback: {response.status_code} - {response.text}")
 
-    def play_from_start(self, track_id: str) -> None:
+
+
+    def is_playing(self, device_id: str = None) -> bool:
         """
-        Plays the track from the beginning.
-        """
-        if not self.access_token:
-            raise Exception("Access Token ist nicht gesetzt. Bitte Token mit `get_spotify_token` abrufen.")
+        Checks if a song is currently playing on a specific device.
         
-        url = "https://api.spotify.com/v1/me/player/play"
-        headers = {
-            "Authorization": f"Bearer {self.access_token}",
-            "Content-Type": "application/json"
-        }
-        data = {
-            "uris": [f"spotify:track:{track_id}"],
-            "position_ms": 0  # Starts the track from the beginning
-        }
-
-        response = requests.put(url, headers=headers, json=data)
-        if response.status_code == 204:
-            print(f"Track {track_id} wird von Anfang an abgespielt.")
-        else:
-            print(f"Fehler beim Abspielen des Tracks: {response.status_code} - {response.text}")
-
-    def is_playing(self) -> bool:
-        """
-        Checks if a song is currently playing.
-
-        :return: True if a song is playing, False if paused.
+        :param device_id: Optional Spotify device ID to check playback status.
+        :return: True if a song is playing, False otherwise.
         """
         if not self.access_token:
-            raise Exception("Access Token ist nicht gesetzt. Bitte Token mit `get_spotify_token` abrufen.")
+            raise Exception("Access Token not set. Please retrieve the token using `get_spotify_token`.")
         
         url = "https://api.spotify.com/v1/me/player"
         headers = {"Authorization": f"Bearer {self.access_token}"}
@@ -198,11 +185,22 @@ class SpotifyConnection:
         
         if response.status_code == 200:
             data = response.json()
-            return data.get("is_playing", False)  # Returns False if "is_playing" is missing
+            is_playing = data.get("is_playing", False)
+
+            if device_id:
+                active_device = data.get("device", {}).get("id")
+                if active_device == device_id:
+                    return is_playing
+                else:
+                    print("The specified device is not currently active.")
+                    return False
+            
+            # If no device_id is provided, return the overall playback state
+            return is_playing
         elif response.status_code == 204:
             # 204 indicates no active device
-            print("Es ist kein aktives Gerät verbunden.")
+            print("No active device found.")
             return False
         else:
-            print(f"Fehler beim Abrufen des Player-Status: {response.status_code} - {response.text}")
+            print(f"Error retrieving playback status: {response.status_code} - {response.text}")
             return False
