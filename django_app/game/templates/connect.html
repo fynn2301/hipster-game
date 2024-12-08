@@ -5,7 +5,7 @@
     <style>
         /* General body styles */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
                  "Helvetica Neue", Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -15,7 +15,7 @@
             align-items: center;
             background-color: #f5f5f5;
         }
-    
+
         /* Main container styles */
         .container {
             text-align: center;
@@ -28,7 +28,7 @@
             box-sizing: border-box;
             margin: 0 auto;
         }
-    
+
         /* Header styles */
         h1 {
             font-size: clamp(24px, 10vw, 48px);
@@ -37,7 +37,7 @@
             color: #333;
             margin-bottom: clamp(20px, 4vw, 40px);
         }
-    
+
         /* Scrollable instruction styles */
         .instructions {
             height: 400px; /* Fixed height */
@@ -125,6 +125,22 @@
             {% csrf_token %}
             <button type="submit" name="action" value="connect">Connect to Spotify</button>
         </form>
+                <p>This site uses cookies to improve user experience. By using this site, you agree to our use of cookies.
+            <button onclick="acceptCookies()">I Accept</button>
+        </p>
     </div>
+
+    <script>
+        // Show the banner if the user hasn't accepted cookies
+        if (!document.cookie.includes("cookieConsent=true")) {
+            document.getElementById("cookieConsent").style.display = "block";
+        }
+
+        function acceptCookies() {
+            // Set a cookie to remember the user's consent
+            document.cookie = "cookieConsent=true; path=/; max-age=" + 60 * 60 * 24 * 30; // 30 days
+            document.getElementById("cookieConsent").style.display = "none";
+    }
+</script>
 </body>
 </html>
