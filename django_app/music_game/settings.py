@@ -120,8 +120,6 @@ USE_I18N = True
 USE_TZ = True
 CSRF_TRUSTED_ORIGINS = ['https://fynn2301.pythonanywhere.com']
 CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
 
 
 # Static files (CSS, JavaScript, Images)
