@@ -118,7 +118,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-CSRF_TRUSTED_ORIGINS = ['http://192.168.0.77']
+CSRF_TRUSTED_ORIGINS = ['https://fynn2301.pythonanywhere.com']
 CSRF_COOKIE_SAMESITE = 'Lax'
 
 
