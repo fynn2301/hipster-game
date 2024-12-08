@@ -24,7 +24,7 @@ canvas {
     width: 100%;
     max-width: 500px; /* Limit size on larger screens */
     image-rendering: pixelated;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3), 0 4px 6px rgba(0, 0, 0, 0.2); /* Add shadow */
     margin: 0 auto;
     display: block;
 }
@@ -223,7 +223,7 @@ canvas {
     // Variable, um den aktuell gewählten zufälligen Spruch zu speichern
     let currentRandomPhrase = randomPhrases[Math.floor(Math.random() * randomPhrases.length)];
 
-    const pixelSize = 100; // Pixel block size for pixelation
+    const pixelSize = 700/9; // Pixel block size for pixelation
 
     // Helper function to update UI
     function updateUI(songData) {
