@@ -5,10 +5,13 @@
 .vscode/
 
 # Virtual environment
-hitster-venv/
+databuidlding-venv/
+databuilding/
+prod-venv/
 
 # General ignores
 *.pyc
 __pycache__/
 .DS_Store
 *.log
+

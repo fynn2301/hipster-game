@@ -82,7 +82,7 @@ def get_playlist(start_year: int, end_year: int, genres: list[str], difficulty: 
     ...
     """
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    file_path = os.path.join(BASE_DIR, "data", "processed_data", "song_data.csv")
+    file_path = os.path.join(BASE_DIR, "data", "song_data.csv")
 
     all_songs = pd.read_csv(file_path, index_col=None)
     # match score needs to be over 0.95
